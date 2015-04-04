@@ -4,7 +4,7 @@
   ~ //Michel Racic (http://rac.su/+)//
   -->
 
-<suite name="TRP Parallel classes Suite" parallel="methods" thread-count="10" verbose="10">
+<suite name="Parallel classes Suite" parallel="methods" thread-count="10" verbose="10">
     <test name="Try 1">
         <classes>
             <class name="ch.racic.sammelsurium.testng.listener.SampleTest"/>
