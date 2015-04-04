@@ -1,0 +1,13 @@
+#
+# Copyleft (c) 2015. This code is for learning purposes only.
+# Do whatever you like with it but don't take it as perfect code.
+# //Michel Racic (http://rac.su/+)//
+#
+ch.racic.sammelsurium.testng.listener.AnnotationTransformer
+ch.racic.sammelsurium.testng.listener.ExecutionListener
+ch.racic.sammelsurium.testng.listener.Hookable
+ch.racic.sammelsurium.testng.listener.InvokedMethodListener
+ch.racic.sammelsurium.testng.listener.MethodInterceptor
+ch.racic.sammelsurium.testng.listener.Reporter
+ch.racic.sammelsurium.testng.listener.SuiteListener
+ch.racic.sammelsurium.testng.listener.TestListener

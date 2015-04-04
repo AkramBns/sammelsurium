@@ -1,0 +1,121 @@
+/*
+ * Copyleft (c) 2015. This code is for learning purposes only.
+ * Do whatever you like with it but don't take it as perfect code.
+ * //Michel Racic (http://rac.su/+)//
+ */
+
+package ch.racic.sammelsurium.testng.listener;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.testng.Assert;
+import org.testng.ITestContext;
+import org.testng.ITestResult;
+import org.testng.annotations.*;
+
+import java.lang.reflect.Method;
+
+/**
+ * Created by rac on 22.09.14.
+ */
+public class SampleTest2 extends AbstractTrpTest {
+
+    private static final Logger log = LogManager.getLogger(SampleTest2.class);
+
+    @BeforeClass
+    public void beforeClass(ITestContext iTestContext) {
+        log.entry(iTestContext);
+
+    }
+
+    @AfterClass
+    public void afterClass(ITestContext iTestContext) {
+        log.entry(iTestContext);
+
+    }
+
+    @BeforeGroups("TestGroup")
+    public void beforeGroups(ITestContext iTestContext) {
+        log.entry(iTestContext);
+
+    }
+
+    @AfterGroups("TestGroup")
+    public void afterGroups(ITestContext iTestContext) {
+        log.entry(iTestContext);
+
+    }
+
+    @BeforeMethod
+    public void beforeMethod(ITestContext iTestContext, Method method, Object[] params) {
+        log.entry(iTestContext, method, params);
+
+    }
+
+    @AfterMethod
+    public void afterMethod(ITestResult iTestResult, Method method) {
+        log.entry(iTestResult, method);
+
+    }
+
+    @BeforeSuite
+    public void beforeSuite(ITestContext iTestContext) {
+        log.entry(iTestContext);
+
+    }
+
+    @AfterSuite
+    public void afterSuite(ITestContext iTestContext) {
+        log.entry(iTestContext);
+
+    }
+
+    @BeforeTest
+    public void beforeTest(ITestContext iTestContext) {
+        log.entry(iTestContext);
+
+    }
+
+    @AfterTest
+    public void afterTest(ITestContext iTestContext) {
+        log.entry(iTestContext);
+
+    }
+
+    @Test(testName = "ding dong 1")
+    public void test1(ITestContext iTestContext) {
+        log.entry(iTestContext);
+    }
+
+    @Test(groups = "TestGroup", suiteName = "test2 suite")
+    public void test2(ITestContext iTestContext) {
+        log.entry(iTestContext);
+    }
+
+    @Test(testName = "ding", description = "Mach dein ding")
+    public void test3(ITestContext iTestContext) {
+        log.entry(iTestContext);
+    }
+
+    @Test(groups = "TestGroup", testName = "ding")
+    public void test4(ITestContext iTestContext) {
+        log.entry(iTestContext);
+        Assert.fail();
+
+    }
+
+    @Test
+    public void test5(ITestContext iTestContext) {
+        log.entry(iTestContext);
+        dummyStep();
+
+    }
+
+    public void dummyStep() {
+        System.out.println("println test");
+        log.info("logger capture test info");
+        log.warn("warn logger test");
+        log.error("error log", new Exception("test"));
+    }
+
+}

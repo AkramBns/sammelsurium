@@ -1,0 +1,20 @@
+<!--
+  ~ Copyleft (c) 2015. This code is for learning purposes only.
+  ~ Do whatever you like with it but don't take it as perfect code.
+  ~ //Michel Racic (http://rac.su/+)//
+  -->
+
+<suite name="TRP Parallel classes Suite" parallel="methods" thread-count="10" verbose="10">
+    <test name="Try 1">
+        <classes>
+            <class name="ch.racic.sammelsurium.testng.listener.SampleTest"/>
+            <class name="ch.racic.sammelsurium.testng.listener.SampleTest2"/>
+        </classes>
+    </test>
+    <test name="Try 2">
+        <classes>
+            <class name="ch.racic.sammelsurium.testng.listener.SampleTest"/>
+            <class name="ch.racic.sammelsurium.testng.listener.SampleTest2"/>
+        </classes>
+    </test>
+</suite>
