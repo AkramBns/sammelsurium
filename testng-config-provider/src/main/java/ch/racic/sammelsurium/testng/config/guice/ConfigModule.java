@@ -12,6 +12,8 @@ import com.google.inject.AbstractModule;
 import org.testng.ITestContext;
 import org.testng.xml.XmlTest;
 
+import java.util.Locale;
+
 /**
  * Created by rac on 06.04.15.
  */
@@ -23,6 +25,7 @@ public class ConfigModule extends AbstractModule {
     public static final String ENVIRONMENT_NAME = "environment.name";
     public static final String ENVIRONMENT_DESCRIPTION = "environment.description";
     public static final String ENVIRONMENT_CODE = "environment.code";
+    public static final String ENVIRONMENT_LOCALE = "environment.locale";
 
     /**
      * Constructor for the guice module to be used outside of TestNG
@@ -46,9 +49,10 @@ public class ConfigModule extends AbstractModule {
         String envName = test.getParameter(ENVIRONMENT_NAME);
         String envDesc = test.getParameter(ENVIRONMENT_DESCRIPTION);
         String envCode = test.getParameter(ENVIRONMENT_CODE);
-
+        String envLocale = test.getParameter(ENVIRONMENT_LOCALE);
+        Locale locale = Locale.forLanguageTag(envLocale);
         if (envCode != null) {
-            env = new ConfigEnvironment(envName, envDesc, envCode);
+            env = new ConfigEnvironment(envName, envDesc, envCode, locale);
         }
 
         this.testClass = testClass;

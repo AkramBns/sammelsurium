@@ -6,6 +6,8 @@
 
 package ch.racic.sammelsurium.testng.config;
 
+import java.util.Locale;
+
 /**
  * Created by rac on 05.04.15.
  */
@@ -13,6 +15,7 @@ public class ConfigEnvironment {
     private String name;
     private String description;
     private String code;
+    private Locale locale;
 
     public ConfigEnvironment() {
     }
@@ -21,6 +24,13 @@ public class ConfigEnvironment {
         this.name = name;
         this.description = description;
         this.code = code;
+    }
+
+    public ConfigEnvironment(String name, String description, String code, Locale locale) {
+        this.name = name;
+        this.description = description;
+        this.code = code;
+        this.locale = locale;
     }
 
     public String getName() {
@@ -50,12 +60,22 @@ public class ConfigEnvironment {
         return this;
     }
 
+    public Locale getLocale() {
+        return locale;
+    }
+
+    public ConfigEnvironment setLocale(Locale locale) {
+        this.locale = locale;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "ConfigEnvironment{" +
                 "name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", code='" + code + '\'' +
+                ", locale='" + locale + '\'' +
                 '}';
     }
 }

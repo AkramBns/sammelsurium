@@ -15,13 +15,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
+import java.util.ResourceBundle;
 
 /**
  * Created by rac on 05.04.15.
@@ -37,11 +36,14 @@ public class ConfigProvider {
     private static final String CONFIG_GLOBAL_BASE_FOLDER = "global";
     private static final String CONFIG_CLASS_FOLDER = "class";
 
-    private Properties propsGlobal, propsEnv, propsGlobalClass, propsEnvClass;
+    private AggregatedResourceBundle propsGlobal, propsEnv, propsGlobalClass, propsEnvClass;
 
     private FilenameFilter propertiesFilter = new FilenameFilter() {
         public boolean accept(File dir, String name) {
-            if (name.endsWith(".properties")) return true;
+            if (
+            /** Filter locale bundles as we will construct the ResourceBundle with the default file **/
+                    name.matches("^([a-zA-Z0-9.-]*\\.properties)$")
+                    ) return true;
             else return false;
         }
     };
@@ -65,70 +67,67 @@ public class ConfigProvider {
         }
 
         // Load global base properties
-        propsGlobal = new Properties();
         File configGlobalBaseFolder = new File(configBaseFolder, CONFIG_GLOBAL_BASE_FOLDER);
         if (configGlobalBaseFolder.exists() && configGlobalBaseFolder.isDirectory()) {
+            propsGlobal = new AggregatedResourceBundle();
             // Get list of files in global folder and load it into props
             for (File f : configGlobalBaseFolder.listFiles(propertiesFilter)) {
+
                 log.debug("Loading properties from " + f.getPath());
-                try {
-                    propsGlobal.load(new FileReader(f));
-                } catch (IOException e) {
-                    log.error("Configuration initialisation error", e);
-                }
+                if (environment != null && environment.getLocale() != null)
+                    propsGlobal.merge(ResourceBundle.getBundle(CONFIG_BASE_FOLDER + "." + CONFIG_GLOBAL_BASE_FOLDER + "." + f.getName().replace(".properties", ""), environment.getLocale()));
+                else
+                    propsGlobal.merge(ResourceBundle.getBundle(CONFIG_BASE_FOLDER + "." + CONFIG_GLOBAL_BASE_FOLDER + "." + f.getName().replace(".properties", "")));
             }
         } else {
             log.warn("global folder not existing, can't load default values");
         }
 
         // Load environment base properties
-        propsEnv = new Properties();
         File configEnvironmentBaseFolder = null;
         if (environment != null) {
             configEnvironmentBaseFolder = new File(configBaseFolder, environment.getCode());
             if (!(configEnvironmentBaseFolder.exists() && configEnvironmentBaseFolder.isDirectory())) {
                 log.error("Configuration initialisation error", new IOException("Environment specific configuration folder does not exist for " + environment));
             }
+            propsEnv = new AggregatedResourceBundle();
             // Get list of files in environment folder and load it into props, overriding existing global properties
             for (File f : configEnvironmentBaseFolder.listFiles(propertiesFilter)) {
                 log.debug("Loading properties from " + f.getPath());
-                try {
-                    propsEnv.load(new FileReader(f));
-                } catch (IOException e) {
-                    log.error("Configuration initialisation error", e);
-                }
+                if (environment.getLocale() != null)
+                    propsEnv.merge(ResourceBundle.getBundle(CONFIG_BASE_FOLDER + "." + environment.getCode() + "." + f.getName().replace(".properties", ""), environment.getLocale()));
+                else
+                    propsEnv.merge(ResourceBundle.getBundle(CONFIG_BASE_FOLDER + "." + environment.getCode() + "." + f.getName().replace(".properties", "")));
             }
         }
 
         // Load global class properties
-        propsGlobalClass = new Properties();
         if (configGlobalBaseFolder.exists() && configGlobalBaseFolder.isDirectory() && clazz != null) {
             // Check if a class file exists
             File classProps = new File(configGlobalBaseFolder, CONFIG_CLASS_FOLDER + "/" + clazz + ".properties");
             if (classProps.exists() && classProps.isFile()) {
+                propsGlobalClass = new AggregatedResourceBundle();
                 // It exists, load it into props
                 log.debug("Loading properties from " + classProps.getPath());
-                try {
-                    propsGlobalClass.load(new FileReader(classProps));
-                } catch (IOException e) {
-                    log.error("Configuration initialisation error", e);
-                }
+                if (environment.getLocale() != null)
+                    propsGlobalClass.merge(ResourceBundle.getBundle(CONFIG_BASE_FOLDER + "." + CONFIG_GLOBAL_BASE_FOLDER + "." + CONFIG_CLASS_FOLDER + "." + clazz, environment.getLocale()));
+                else
+                    propsGlobalClass.merge(ResourceBundle.getBundle(CONFIG_BASE_FOLDER + "." + CONFIG_GLOBAL_BASE_FOLDER + "." + CONFIG_CLASS_FOLDER + "." + clazz));
             }
         }
 
         // Load environment class properties
-        propsEnvClass = new Properties();
         if (configEnvironmentBaseFolder != null && clazz != null) {
             // Check if a class file exists
             File classProps = new File(configEnvironmentBaseFolder, CONFIG_CLASS_FOLDER + "/" + clazz + ".properties");
             if (classProps.exists() && classProps.isFile()) {
+                propsEnvClass = new AggregatedResourceBundle();
                 // It exists, load it into props
                 log.debug("Loading properties from " + classProps.getPath());
-                try {
-                    propsEnvClass.load(new FileReader(classProps));
-                } catch (IOException e) {
-                    log.error("Configuration initialisation error", e);
-                }
+                if (environment.getLocale() != null)
+                    propsEnvClass.merge(ResourceBundle.getBundle(CONFIG_BASE_FOLDER + "." + environment.getCode() + "." + CONFIG_CLASS_FOLDER + "." + clazz, environment.getLocale()));
+                else
+                    propsEnvClass.merge(ResourceBundle.getBundle(CONFIG_BASE_FOLDER + "." + environment.getCode() + "." + CONFIG_CLASS_FOLDER + "." + clazz));
             }
         }
 
@@ -147,18 +146,18 @@ public class ConfigProvider {
     }
 
     public String get(String key, String defaultValue) {
-        if (propsEnvClass.containsKey(key)) {
+        if (propsEnvClass != null && propsEnvClass.containsKey(key)) {
             log.info("Retrieved property [" + key + "] from Environment class properties");
-            return propsEnvClass.getProperty(key);
-        } else if (propsGlobalClass.containsKey(key)) {
+            return propsEnvClass.getString(key);
+        } else if (propsGlobalClass != null && propsGlobalClass.containsKey(key)) {
             log.info("Retrieved property [" + key + "] from Global class properties");
-            return propsGlobalClass.getProperty(key);
-        } else if (propsEnv.containsKey(key)) {
+            return propsGlobalClass.getString(key);
+        } else if (propsEnv != null && propsEnv.containsKey(key)) {
             log.info("Retrieved property [" + key + "] from Environment properties");
-            return propsEnv.getProperty(key);
-        } else if (propsGlobal.containsKey(key)) {
+            return propsEnv.getString(key);
+        } else if (propsGlobal != null && propsGlobal.containsKey(key)) {
             log.info("Retrieved property [" + key + "] from Global properties");
-            return propsGlobal.getProperty(key);
+            return propsGlobal.getString(key);
         } else {
             log.warn("Property [" + key + "] has not been found, returning default value");
             return defaultValue;
@@ -172,11 +171,11 @@ public class ConfigProvider {
         if (environment != null) logProperties("Environment class " + environment, propsEnvClass);
     }
 
-    private void logProperties(String title, Properties props) {
+    private void logProperties(String title, AggregatedResourceBundle props) {
         if (props == null) return;
         log.info("CM Properties available from " + title);
-        for (String key : props.stringPropertyNames())
-            log.info("\tKey[" + key + "], Value[" + props.get(key) + "]");
+        for (String key : props.keySet())
+            log.info("\tKey[" + key + "], Value[" + props.getString(key) + "]");
     }
 
     /**
