@@ -29,8 +29,9 @@ public class InjectTest {
 
     @Test
     public void simpleTest() {
+        cfg.logAvailableProperties();
         log.debug("Config loaded from: " + cfg.get("config.test.loadedfrom"));
-        Assert.assertEquals(cfg.get("config.test.loadedfrom"), "env1/test.properties", "config.test.loadedfrom gets overwritten by env folder");
+        Assert.assertEquals(cfg.get("config.test.loadedfrom"), "env1/test_de.properties", "config.test.loadedfrom gets overwritten by env folder");
         Assert.assertEquals(cfg.get("config.test.global"), "global", "config.test.global gets not overwritten");
         Assert.assertEquals(cfg.get("config.test.env"), "env1", "config.test.env gets overwritten by env folder");
         Assert.assertEquals(cfg.get("config.test.global.class"), "SimpleTest.global", "config.test.global.class gets not overwritten");

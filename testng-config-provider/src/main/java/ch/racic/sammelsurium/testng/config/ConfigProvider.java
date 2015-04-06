@@ -73,7 +73,7 @@ public class ConfigProvider {
             // Get list of files in global folder and load it into props
             for (File f : configGlobalBaseFolder.listFiles(propertiesFilter)) {
 
-                log.debug("Loading properties from " + f.getPath());
+                log.debug("Loading PropertiesResourceBundle from " + f.getPath() + ((environment.getLocale() != null) ? " using locale " + environment.getLocale() : ""));
                 if (environment != null && environment.getLocale() != null)
                     propsGlobal.merge(ResourceBundle.getBundle(CONFIG_BASE_FOLDER + "." + CONFIG_GLOBAL_BASE_FOLDER + "." + f.getName().replace(".properties", ""), environment.getLocale()));
                 else
@@ -93,7 +93,7 @@ public class ConfigProvider {
             propsEnv = new AggregatedResourceBundle();
             // Get list of files in environment folder and load it into props, overriding existing global properties
             for (File f : configEnvironmentBaseFolder.listFiles(propertiesFilter)) {
-                log.debug("Loading properties from " + f.getPath());
+                log.debug("Loading PropertiesResourceBundle from " + f.getPath() + ((environment.getLocale() != null) ? " using locale " + environment.getLocale() : ""));
                 if (environment.getLocale() != null)
                     propsEnv.merge(ResourceBundle.getBundle(CONFIG_BASE_FOLDER + "." + environment.getCode() + "." + f.getName().replace(".properties", ""), environment.getLocale()));
                 else
@@ -108,7 +108,7 @@ public class ConfigProvider {
             if (classProps.exists() && classProps.isFile()) {
                 propsGlobalClass = new AggregatedResourceBundle();
                 // It exists, load it into props
-                log.debug("Loading properties from " + classProps.getPath());
+                log.debug("Loading PropertiesResourceBundle from " + classProps.getPath() + ((environment.getLocale() != null) ? " using locale " + environment.getLocale() : ""));
                 if (environment.getLocale() != null)
                     propsGlobalClass.merge(ResourceBundle.getBundle(CONFIG_BASE_FOLDER + "." + CONFIG_GLOBAL_BASE_FOLDER + "." + CONFIG_CLASS_FOLDER + "." + clazz, environment.getLocale()));
                 else
@@ -123,7 +123,7 @@ public class ConfigProvider {
             if (classProps.exists() && classProps.isFile()) {
                 propsEnvClass = new AggregatedResourceBundle();
                 // It exists, load it into props
-                log.debug("Loading properties from " + classProps.getPath());
+                log.debug("Loading PropertiesResourceBundle from " + classProps.getPath() + ((environment.getLocale() != null) ? " using locale " + environment.getLocale() : ""));
                 if (environment.getLocale() != null)
                     propsEnvClass.merge(ResourceBundle.getBundle(CONFIG_BASE_FOLDER + "." + environment.getCode() + "." + CONFIG_CLASS_FOLDER + "." + clazz, environment.getLocale()));
                 else
@@ -147,16 +147,16 @@ public class ConfigProvider {
 
     public String get(String key, String defaultValue) {
         if (propsEnvClass != null && propsEnvClass.containsKey(key)) {
-            log.info("Retrieved property [" + key + "] from Environment class properties");
+            log.debug("Retrieved property [" + key + "] from Environment class properties");
             return propsEnvClass.getString(key);
         } else if (propsGlobalClass != null && propsGlobalClass.containsKey(key)) {
-            log.info("Retrieved property [" + key + "] from Global class properties");
+            log.debug("Retrieved property [" + key + "] from Global class properties");
             return propsGlobalClass.getString(key);
         } else if (propsEnv != null && propsEnv.containsKey(key)) {
-            log.info("Retrieved property [" + key + "] from Environment properties");
+            log.debug("Retrieved property [" + key + "] from Environment properties");
             return propsEnv.getString(key);
         } else if (propsGlobal != null && propsGlobal.containsKey(key)) {
-            log.info("Retrieved property [" + key + "] from Global properties");
+            log.debug("Retrieved property [" + key + "] from Global properties");
             return propsGlobal.getString(key);
         } else {
             log.warn("Property [" + key + "] has not been found, returning default value");

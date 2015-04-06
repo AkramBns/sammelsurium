@@ -35,6 +35,7 @@ public class SimpleTest {
 
     @Test
     public void simpleTest() {
+        cfg.logAvailableProperties();
         log.debug("Config loaded from: " + cfg.get("config.test.loadedfrom"));
         Assert.assertEquals(cfg.get("config.test.loadedfrom"), "env1/test.properties", "config.test.loadedfrom gets overwritten by env folder");
         Assert.assertEquals(cfg.get("config.test.global"), "global", "config.test.global gets not overwritten");
