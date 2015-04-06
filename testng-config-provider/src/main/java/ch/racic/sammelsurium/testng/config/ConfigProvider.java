@@ -6,6 +6,7 @@
 
 package ch.racic.sammelsurium.testng.config;
 
+import com.google.inject.Inject;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,7 +24,9 @@ public class ConfigProvider implements IConfigProvider {
 
     private static final Logger log = LogManager.getLogger(ConfigProvider.class);
 
+    @Inject
     private ConfigEnvironment environment;
+    @Inject
     private Class clazz;
 
     private static final String CONFIG_BASE_FOLDER = "config";
