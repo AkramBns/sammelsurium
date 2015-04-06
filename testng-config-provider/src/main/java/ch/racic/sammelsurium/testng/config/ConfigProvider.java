@@ -7,6 +7,8 @@
 package ch.racic.sammelsurium.testng.config;
 
 import ch.racic.sammelsurium.testng.config.annotation.ClassConfig;
+import ch.racic.sammelsurium.testng.config.guice.ConfigModule;
+import com.google.inject.Injector;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -146,5 +148,10 @@ public class ConfigProvider {
         log.info("CM Properties available" + ((environment != null) ? " for environment " + environment : ""));
         for (String key : props.stringPropertyNames())
             log.info("\tKey[" + key + "], Value[" + props.get(key) + "]");
+    }
+
+    public <T> T create(Class<T> type) {
+        Injector injector = com.google.inject.Guice.createInjector(new ConfigModule(environment, type));
+        return injector.getInstance(type);
     }
 }

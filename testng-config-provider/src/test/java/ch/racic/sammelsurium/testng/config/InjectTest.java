@@ -7,10 +7,8 @@
 package ch.racic.sammelsurium.testng.config;
 
 import ch.racic.sammelsurium.testng.config.annotation.ClassConfig;
-import ch.racic.sammelsurium.testng.config.guice.ConfigModule;
 import ch.racic.sammelsurium.testng.config.guice.ConfigModuleFactory;
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
@@ -42,13 +40,8 @@ public class InjectTest {
 
     @Test
     public void injectInObject() {
-        TestObject to = create(TestObject.class);
+        TestObject to = cfg.create(TestObject.class);
         Assert.assertEquals(to.getObjectConf(), "from global", "TestObject could load its class properties from global");
-    }
-
-    public <T> T create(Class<T> type) {
-        Injector injector = com.google.inject.Guice.createInjector(new ConfigModule(cfg.getEnvironment(), type));
-        return injector.getInstance(type);
     }
 
 
