@@ -6,7 +6,6 @@
 
 package ch.racic.sammelsurium.testng.config;
 
-import com.google.inject.Inject;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,13 +19,11 @@ import java.util.Properties;
 /**
  * Created by rac on 05.04.15.
  */
-public class ConfigProvider implements IConfigProvider {
+public class ConfigProvider {
 
     private static final Logger log = LogManager.getLogger(ConfigProvider.class);
 
-    @Inject
     private ConfigEnvironment environment;
-    @Inject
     private Class clazz;
 
     private static final String CONFIG_BASE_FOLDER = "config";
@@ -42,19 +39,19 @@ public class ConfigProvider implements IConfigProvider {
         }
     };
 
-    public ConfigProvider(ConfigEnvironment environment, Class clazz) throws IOException {
+    public ConfigProvider(ConfigEnvironment environment, Class clazz) {
         this.environment = environment;
         this.clazz = clazz;
         loadProperties();
     }
 
-    private void loadProperties() throws IOException {
+    private void loadProperties() {
         props = new Properties();
 
         // check that base config directory exists to be used as a base for all following actions
         File configBaseFolder = FileUtils.toFile(getClass().getClassLoader().getResource(CONFIG_BASE_FOLDER));
         if (!(configBaseFolder != null && configBaseFolder.exists() && configBaseFolder.isDirectory())) {
-            throw new IOException("Config folder not existing or not a directory");
+            log.error("Configuration initialisation error", new IOException("Config folder not existing or not a directory"));
         }
 
         // Load global base properties
@@ -63,7 +60,11 @@ public class ConfigProvider implements IConfigProvider {
             // Get list of files in global folder and load it into props
             for (File f : configGlobalBaseFolder.listFiles(propertiesFilter)) {
                 log.debug("Loading properties from " + f.getPath());
-                props.load(new FileReader(f));
+                try {
+                    props.load(new FileReader(f));
+                } catch (IOException e) {
+                    log.error("Configuration initialisation error", e);
+                }
             }
         } else {
             log.warn("global folder not existing, can't load default values");
@@ -74,12 +75,16 @@ public class ConfigProvider implements IConfigProvider {
         if (environment != null) {
             configEnvironmentBaseFolder = new File(configBaseFolder, environment.getCode());
             if (!(configEnvironmentBaseFolder.exists() && configEnvironmentBaseFolder.isDirectory())) {
-                throw new IOException("Environment specific configuration folder does not exist for " + environment);
+                log.error("Configuration initialisation error", new IOException("Environment specific configuration folder does not exist for " + environment));
             }
             // Get list of files in environment folder and load it into props, overriding existing global properties
             for (File f : configEnvironmentBaseFolder.listFiles(propertiesFilter)) {
                 log.debug("Loading properties from " + f.getPath());
-                props.load(new FileReader(f));
+                try {
+                    props.load(new FileReader(f));
+                } catch (IOException e) {
+                    log.error("Configuration initialisation error", e);
+                }
             }
         }
 
@@ -90,7 +95,11 @@ public class ConfigProvider implements IConfigProvider {
             if (classProps.exists() && classProps.isFile()) {
                 // It exists, load it into props
                 log.debug("Loading properties from " + classProps.getPath());
-                props.load(new FileReader(classProps));
+                try {
+                    props.load(new FileReader(classProps));
+                } catch (IOException e) {
+                    log.error("Configuration initialisation error", e);
+                }
             }
         }
 
@@ -101,7 +110,11 @@ public class ConfigProvider implements IConfigProvider {
             if (classProps.exists() && classProps.isFile()) {
                 // It exists, load it into props
                 log.debug("Loading properties from " + classProps.getPath());
-                props.load(new FileReader(classProps));
+                try {
+                    props.load(new FileReader(classProps));
+                } catch (IOException e) {
+                    log.error("Configuration initialisation error", e);
+                }
             }
         }
 

@@ -4,5 +4,5 @@ log
 *.ipr
 *.iws
 .DS_Store
-**/.idea
+.idea
 
