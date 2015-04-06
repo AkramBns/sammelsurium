@@ -9,6 +9,7 @@ package ch.racic.sammelsurium.testng.config;
 import ch.racic.sammelsurium.testng.config.annotation.ClassConfig;
 import ch.racic.sammelsurium.testng.config.guice.ConfigModule;
 import com.google.inject.Injector;
+import com.google.inject.Module;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,6 +18,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -150,8 +154,19 @@ public class ConfigProvider {
             log.info("\tKey[" + key + "], Value[" + props.get(key) + "]");
     }
 
-    public <T> T create(Class<T> type) {
-        Injector injector = com.google.inject.Guice.createInjector(new ConfigModule(environment, type));
+    /**
+     * Create an instance of a class using the config injector and any guice modules given in parameters.
+     *
+     * @param type
+     * @param modules ...
+     * @param <T>
+     * @return
+     */
+    public <T> T create(Class<T> type, Module... modules) {
+        List<Module> mList = new ArrayList<Module>(Arrays.asList(modules));
+        mList.add(new ConfigModule(environment, type));
+        Injector injector = com.google.inject.Guice.createInjector(mList);
         return injector.getInstance(type);
     }
+
 }
