@@ -37,7 +37,7 @@ public class ConfigProvider {
     private static final String CONFIG_GLOBAL_BASE_FOLDER = "global";
     private static final String CONFIG_CLASS_FOLDER = "class";
 
-    private Properties props;
+    private Properties propsGlobal, propsEnv, propsGlobalClass, propsEnvClass;
 
     private FilenameFilter propertiesFilter = new FilenameFilter() {
         public boolean accept(File dir, String name) {
@@ -58,8 +58,6 @@ public class ConfigProvider {
     }
 
     private void loadProperties() {
-        props = new Properties();
-
         // check that base config directory exists to be used as a base for all following actions
         File configBaseFolder = FileUtils.toFile(getClass().getClassLoader().getResource(CONFIG_BASE_FOLDER));
         if (!(configBaseFolder != null && configBaseFolder.exists() && configBaseFolder.isDirectory())) {
@@ -67,13 +65,14 @@ public class ConfigProvider {
         }
 
         // Load global base properties
+        propsGlobal = new Properties();
         File configGlobalBaseFolder = new File(configBaseFolder, CONFIG_GLOBAL_BASE_FOLDER);
         if (configGlobalBaseFolder.exists() && configGlobalBaseFolder.isDirectory()) {
             // Get list of files in global folder and load it into props
             for (File f : configGlobalBaseFolder.listFiles(propertiesFilter)) {
                 log.debug("Loading properties from " + f.getPath());
                 try {
-                    props.load(new FileReader(f));
+                    propsGlobal.load(new FileReader(f));
                 } catch (IOException e) {
                     log.error("Configuration initialisation error", e);
                 }
@@ -83,6 +82,7 @@ public class ConfigProvider {
         }
 
         // Load environment base properties
+        propsEnv = new Properties();
         File configEnvironmentBaseFolder = null;
         if (environment != null) {
             configEnvironmentBaseFolder = new File(configBaseFolder, environment.getCode());
@@ -93,7 +93,7 @@ public class ConfigProvider {
             for (File f : configEnvironmentBaseFolder.listFiles(propertiesFilter)) {
                 log.debug("Loading properties from " + f.getPath());
                 try {
-                    props.load(new FileReader(f));
+                    propsEnv.load(new FileReader(f));
                 } catch (IOException e) {
                     log.error("Configuration initialisation error", e);
                 }
@@ -101,6 +101,7 @@ public class ConfigProvider {
         }
 
         // Load global class properties
+        propsGlobalClass = new Properties();
         if (configGlobalBaseFolder.exists() && configGlobalBaseFolder.isDirectory() && clazz != null) {
             // Check if a class file exists
             File classProps = new File(configGlobalBaseFolder, CONFIG_CLASS_FOLDER + "/" + clazz + ".properties");
@@ -108,7 +109,7 @@ public class ConfigProvider {
                 // It exists, load it into props
                 log.debug("Loading properties from " + classProps.getPath());
                 try {
-                    props.load(new FileReader(classProps));
+                    propsGlobalClass.load(new FileReader(classProps));
                 } catch (IOException e) {
                     log.error("Configuration initialisation error", e);
                 }
@@ -116,6 +117,7 @@ public class ConfigProvider {
         }
 
         // Load environment class properties
+        propsEnvClass = new Properties();
         if (configEnvironmentBaseFolder != null && clazz != null) {
             // Check if a class file exists
             File classProps = new File(configEnvironmentBaseFolder, CONFIG_CLASS_FOLDER + "/" + clazz + ".properties");
@@ -123,7 +125,7 @@ public class ConfigProvider {
                 // It exists, load it into props
                 log.debug("Loading properties from " + classProps.getPath());
                 try {
-                    props.load(new FileReader(classProps));
+                    propsEnvClass.load(new FileReader(classProps));
                 } catch (IOException e) {
                     log.error("Configuration initialisation error", e);
                 }
@@ -145,11 +147,34 @@ public class ConfigProvider {
     }
 
     public String get(String key, String defaultValue) {
-        return props.getProperty(key, defaultValue);
+        if (propsEnvClass.containsKey(key)) {
+            log.info("Retrieved property [" + key + "] from Environment class properties");
+            return propsEnvClass.getProperty(key);
+        } else if (propsGlobalClass.containsKey(key)) {
+            log.info("Retrieved property [" + key + "] from Global class properties");
+            return propsGlobalClass.getProperty(key);
+        } else if (propsEnv.containsKey(key)) {
+            log.info("Retrieved property [" + key + "] from Environment properties");
+            return propsEnv.getProperty(key);
+        } else if (propsGlobal.containsKey(key)) {
+            log.info("Retrieved property [" + key + "] from Global properties");
+            return propsGlobal.getProperty(key);
+        } else {
+            log.warn("Property [" + key + "] has not been found, returning default value");
+            return defaultValue;
+        }
     }
 
     public void logAvailableProperties() {
-        log.info("CM Properties available" + ((environment != null) ? " for environment " + environment : ""));
+        logProperties("Global", propsGlobal);
+        if (environment != null) logProperties("Environment " + environment, propsEnv);
+        logProperties("Global class", propsGlobalClass);
+        if (environment != null) logProperties("Environment class " + environment, propsEnvClass);
+    }
+
+    private void logProperties(String title, Properties props) {
+        if (props == null) return;
+        log.info("CM Properties available from " + title);
         for (String key : props.stringPropertyNames())
             log.info("\tKey[" + key + "], Value[" + props.get(key) + "]");
     }
