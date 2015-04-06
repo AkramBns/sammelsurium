@@ -6,8 +6,11 @@
 
 package ch.racic.sammelsurium.testng.config;
 
+import ch.racic.sammelsurium.testng.config.annotation.ClassConfig;
+import ch.racic.sammelsurium.testng.config.guice.ConfigModule;
 import ch.racic.sammelsurium.testng.config.guice.ConfigModuleFactory;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
@@ -18,6 +21,7 @@ import org.testng.annotations.Test;
  * Created by rac on 05.04.15.
  */
 @Guice(moduleFactory = ConfigModuleFactory.class)
+@ClassConfig(SimpleTest.class)
 public class InjectTest {
 
     private static final Logger log = LogManager.getLogger(InjectTest.class);
@@ -34,6 +38,17 @@ public class InjectTest {
         Assert.assertEquals(cfg.get("config.test.global.class"), "SimpleTest.global", "config.test.global.class gets not overwritten");
         Assert.assertEquals(cfg.get("config.test.env.class"), "SimpleTest.env1", "config.test.env.class gets overwritten by env folder");
 
+    }
+
+    @Test
+    public void injectInObject() {
+        TestObject to = create(TestObject.class);
+        Assert.assertEquals(to.getObjectConf(), "from global", "TestObject could load its class properties from global");
+    }
+
+    public <T> T create(Class<T> type) {
+        Injector injector = com.google.inject.Guice.createInjector(new ConfigModule(cfg.getEnvironment(), type));
+        return injector.getInstance(type);
     }
 
 

@@ -23,11 +23,12 @@ public class SimpleTest {
     private static final Logger log = LogManager.getLogger(SimpleTest.class);
 
     ConfigProvider cfg;
+    ConfigEnvironment env;
 
     @BeforeClass
     public void beforeClass(ITestContext iTestContext) throws IOException {
         log.entry(iTestContext);
-        ConfigEnvironment env = new ConfigEnvironment("Test environment 1", "Just for testing the config provider", "env1");
+        env = new ConfigEnvironment("Test environment 1", "Just for testing the config provider", "env1");
         cfg = new ConfigProvider(env, this.getClass());
     }
 
@@ -42,6 +43,5 @@ public class SimpleTest {
         Assert.assertEquals(cfg.get("config.test.env.class"), "SimpleTest.env1", "config.test.env.class gets overwritten by env folder");
 
     }
-
 
 }

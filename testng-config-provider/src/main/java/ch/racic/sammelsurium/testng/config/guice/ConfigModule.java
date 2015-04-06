@@ -24,6 +24,23 @@ public class ConfigModule extends AbstractModule {
     public static final String ENVIRONMENT_DESCRIPTION = "environment.description";
     public static final String ENVIRONMENT_CODE = "environment.code";
 
+    /**
+     * Constructor for the guice module to be used outside of TestNG
+     *
+     * @param env
+     * @param testClass
+     */
+    public ConfigModule(ConfigEnvironment env, Class<?> testClass) {
+        this.env = env;
+        this.testClass = testClass;
+    }
+
+    /**
+     * Constructor to be used from the @see ConfigModuleFactory for TestNG
+     *
+     * @param context
+     * @param testClass
+     */
     public ConfigModule(ITestContext context, Class<?> testClass) {
         XmlTest test = context.getCurrentXmlTest();
         String envName = test.getParameter(ENVIRONMENT_NAME);

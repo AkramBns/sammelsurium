@@ -6,6 +6,7 @@
 
 package ch.racic.sammelsurium.testng.config;
 
+import ch.racic.sammelsurium.testng.config.annotation.ClassConfig;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,7 +25,7 @@ public class ConfigProvider {
     private static final Logger log = LogManager.getLogger(ConfigProvider.class);
 
     private ConfigEnvironment environment;
-    private Class clazz;
+    private String clazz;
 
     private static final String CONFIG_BASE_FOLDER = "config";
     private static final String CONFIG_GLOBAL_BASE_FOLDER = "global";
@@ -41,7 +42,12 @@ public class ConfigProvider {
 
     public ConfigProvider(ConfigEnvironment environment, Class clazz) {
         this.environment = environment;
-        this.clazz = clazz;
+        // Extract class name for loading if annotation present
+        ClassConfig classConfig = (ClassConfig) clazz.getAnnotation(ClassConfig.class);
+        if (classConfig != null && classConfig.value() != null) this.clazz = classConfig.value().getSimpleName();
+        else if (classConfig != null && classConfig.fileName().contentEquals("")) this.clazz = classConfig.fileName();
+        else this.clazz = clazz.getSimpleName();
+
         loadProperties();
     }
 
@@ -91,7 +97,7 @@ public class ConfigProvider {
         // Load global class properties
         if (configGlobalBaseFolder.exists() && configGlobalBaseFolder.isDirectory() && clazz != null) {
             // Check if a class file exists
-            File classProps = new File(configGlobalBaseFolder, CONFIG_CLASS_FOLDER + "/" + clazz.getSimpleName() + ".properties");
+            File classProps = new File(configGlobalBaseFolder, CONFIG_CLASS_FOLDER + "/" + clazz + ".properties");
             if (classProps.exists() && classProps.isFile()) {
                 // It exists, load it into props
                 log.debug("Loading properties from " + classProps.getPath());
@@ -106,7 +112,7 @@ public class ConfigProvider {
         // Load environment class properties
         if (configEnvironmentBaseFolder != null && clazz != null) {
             // Check if a class file exists
-            File classProps = new File(configEnvironmentBaseFolder, CONFIG_CLASS_FOLDER + "/" + clazz.getSimpleName() + ".properties");
+            File classProps = new File(configEnvironmentBaseFolder, CONFIG_CLASS_FOLDER + "/" + clazz + ".properties");
             if (classProps.exists() && classProps.isFile()) {
                 // It exists, load it into props
                 log.debug("Loading properties from " + classProps.getPath());
@@ -124,7 +130,7 @@ public class ConfigProvider {
         return environment;
     }
 
-    public Class getClazz() {
+    public String getClazz() {
         return clazz;
     }
 
