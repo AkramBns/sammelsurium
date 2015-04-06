@@ -1,0 +1,14 @@
+<!--
+  ~ Copyleft (c) 2015. This code is for learning purposes only.
+  ~ Do whatever you like with it but don't take it as perfect code.
+  ~ //Michel Racic (http://rac.su/+)//
+  -->
+
+<suite name="Parallel methods Suite" parallel="methods" thread-count="10" verbose="10">
+
+    <test name="Try 1">
+        <classes>
+            <class name="ch.racic.sammelsurium.selenium.testnguice.TestFieldTest"/>
+        </classes>
+    </test>
+</suite>
