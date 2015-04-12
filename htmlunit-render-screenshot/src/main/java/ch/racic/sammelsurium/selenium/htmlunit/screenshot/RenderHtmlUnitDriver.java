@@ -29,6 +29,8 @@ public class RenderHtmlUnitDriver extends HtmlUnitDriver implements TakesScreens
 
     @Override
     public <X> X getScreenshotAs(OutputType<X> outputType) throws WebDriverException {
+        // inject html2canvas and retrieve screenshot data
+
         return null;
     }
 }
