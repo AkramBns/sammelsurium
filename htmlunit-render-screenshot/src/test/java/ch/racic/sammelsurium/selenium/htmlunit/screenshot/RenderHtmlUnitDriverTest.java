@@ -14,7 +14,7 @@ public class RenderHtmlUnitDriverTest {
     @Test
     public void takeRenderedScreenshot() {
         RenderHtmlUnitDriver d = new RenderHtmlUnitDriver(true);
-        d.navigate().to("http://www.gdgzh.ch");
+        d.navigate().to("http://www.gravityforms.com/demo/");
         File rendered = d.getScreenshotAs(OutputType.FILE);
 
     }
